@@ -9,7 +9,7 @@ class UserAddress extends Model
     protected $fillable = [
         'province',
         'city',
-        'distinct',
+        'district',
         'address',
         'zip',
         'contact_name',
@@ -19,7 +19,7 @@ class UserAddress extends Model
     protected $dates = ['last_used_at'];
 
     // 创建了一个访问器
-    public function getFullAddressAttributes()
+    public function getFullAddressAttribute()
     {
         return "{$this->province}{$this->city}{$this->district}{$this->address}";
     }
