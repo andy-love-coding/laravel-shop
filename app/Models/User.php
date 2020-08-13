@@ -5,10 +5,13 @@ namespace App\Models;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Encore\Admin\Traits\DefaultDatetimeFormat;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
     use Notifiable;
+    // 加上这个 Trait
+    use DefaultDatetimeFormat;
 
     /**
      * The attributes that are mass assignable.
