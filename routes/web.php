@@ -2,6 +2,7 @@
 
 Route::redirect('/', '/products')->name('root');
 Route::get('products', 'ProductsController@index')->name('products.index');
+Route::get('products/{product}', 'ProductsController@show')->name('products.show');
 Auth::routes(['verify' => true]);
 
 // auth 中间件代表需要登录，verified 中间件代表需要经过邮箱认证
