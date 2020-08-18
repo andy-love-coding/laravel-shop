@@ -4,6 +4,13 @@ Route::redirect('/', '/products')->name('root');
 Route::get('products', 'ProductsController@index')->name('products.index');
 Route::get('products/{product}', 'ProductsController@show')->name('products.show')->where(['product' => '[0-9]+']);
 Auth::routes(['verify' => true]);
+Route::get('alipay', function() {
+  return app('alipay')->web([
+      'out_trade_no' => time(),
+      'total_amount' => '1',
+      'subject' => 'test subject - 测试',
+  ]);
+});
 
 // auth 中间件代表需要登录，verified 中间件代表需要经过邮箱认证
 Route::group(['middleware' => ['auth', 'verified']], function() {
