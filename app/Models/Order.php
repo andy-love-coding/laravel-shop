@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Order extends Model
 {
     const REFUND_STATUS_PENDING = 'pending';
-    const REFUND_STATUS_APPFIED = 'appfied';
+    const REFUND_STATUS_APPLIED = 'applied';
     const REFUND_STATUS_PROCESSING = 'processing';
     const REFUND_STATUS_SUCCESS = 'success';
     const REFUND_STATUS_FAILED = 'failed';
@@ -18,7 +18,7 @@ class Order extends Model
 
     public static $refundStatusMap = [
         self::REFUND_STATUS_PENDING     => '未退款',
-        self::REFUND_STATUS_FAILED      => '已申请退款',
+        self::REFUND_STATUS_APPLIED      => '已申请退款',
         self::REFUND_STATUS_PROCESSING  => '退款中',
         self::REFUND_STATUS_SUCCESS     => '退款成功',
         self::REFUND_STATUS_FAILED      => '退款失败', 
