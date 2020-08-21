@@ -9,6 +9,7 @@ use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
 use Encore\Admin\Layout\Content;
+use Illuminate\Validation\Rule;
 
 class CouponCodesController extends AdminController
 {
@@ -39,5 +40,48 @@ class CouponCodesController extends AdminController
         return $grid;
     }
 
-    
+    protected function form()
+    {
+        $form = new Form(new CouponCode());
+
+        $form->display('id', 'ID');
+        $form->text('name', '名称')->rules('required');
+        $form->text('code', '优惠码')->rules(function($form) {
+            if ($id = $form->model()->id) {
+                return 'nullable|unique:coupon_codes,code,'.$id.'id';
+            } else {
+                return 'nullable|unique:coupon_codes';
+            }
+        });
+        $form->radio('type', '类型')->options(CouponCode::$typeMap)->rules('required')->default(CouponCode::TYPE_FIXED);
+        $form->text('value', '折扣')->rules(function($form) {
+            if (request()->input('type') === CouponCode::TYPE_PERCENT) {
+                // 如果选择了百分比折扣类型，那么折扣范围只能是 1 ~ 99
+                return 'required|numeric|between:1,99';
+            } else {
+                return 'required|numeric|min:0.01|lt:min_amount';
+            }
+        },['value.lt' => '折扣不能低于最低金额 '.request()->input('min_amount')]);
+        $form->text('total', '总量')->rules('required|numeric|min:0');
+        $form->text('min_amount', '最低金额')->rules('required|numeric|min:0');
+        $form->datetime('not_before', '开始时间');
+        $form->datetime('not_after', '结束时间')->rules(function($form) {
+            if (request()->input('not_before')) {
+                return 'required|gt:not_before';
+            } else {
+                return;
+            }
+        },[
+            'not_after.required' => '有开始，必有结束',
+            'not_after.gt' => '结束时间 要在 开始时间 之后',
+        ]);
+        $form->radio('enabled', '是否启用')->options(['1' => '是', '0' => '否']);
+
+        $form->saving(function (Form $form) {
+            if (!$form->code) {
+                $form->code = CouponCode::findAvailableCode();
+            }
+        });
+        return $form;
+    }
 }
