@@ -61,7 +61,7 @@ class CouponCodesController extends AdminController
             } else {
                 return 'required|numeric|min:0.01|lt:min_amount';
             }
-        },['value.lt' => '折扣不能低于最低金额 '.request()->input('min_amount')]);
+        },['value.lt' => '折扣需要低于最低金额 '.request()->input('min_amount')]);
         $form->text('total', '总量')->rules('required|numeric|min:0');
         $form->text('min_amount', '最低金额')->rules('required|numeric|min:0');
         $form->datetime('not_before', '开始时间');
