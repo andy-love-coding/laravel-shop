@@ -67,9 +67,12 @@ class CouponCodesController extends AdminController
         $form->datetime('not_before', '开始时间');
         $form->datetime('not_after', '结束时间')->rules(function($form) {
             if (request()->input('not_before')) {
-                return 'required|gt:not_before';
-            } else {
-                return;
+                if (request()->input('not_before') >= request()->input('not_after')) {
+                    // gt:not_before 比较的是时间字符串的长度，因两个时间字符串总是相等（19个字符），一定会触发
+                    // 所以，把真正的比较放在 if() 中完成的，即如果 开始>=结束 ，一定触发 gt:before
+                    return 'required|gt:not_before';
+                }
+                return 'required';
             }
         },[
             'not_after.required' => '有开始，必有结束',
