@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Exceptions\InvalidRequestException;
 use App\Models\OrderItem;
 use App\Models\Category;
+// use App\Services\CategoryService;
 
 class ProductsController extends Controller
 {
@@ -69,6 +70,7 @@ class ProductsController extends Controller
             ],
             // 等价于 isset($category) ? $category : null
             'category' => $category ?? null,
+            // 'categoryTree' => $categoryService->getCategoryTree(),
         ]);
     }
 
