@@ -7,6 +7,7 @@ use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
+use App\Models\Category;
 
 class ProductsController extends AdminController
 {
@@ -25,9 +26,13 @@ class ProductsController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new Product);
+        // 使用 wiht 来与加载商品类目数据，减少 SQL 查询
+        $grid->model()->with(['category']);
 
         $grid->id('ID')->sortable();
         $grid->title('商品名称');
+        // Laravel-Admin 支持用符号 . 来展示关联关系的字段
+        $grid->column('category.name', '类目');
         $grid->on_sale('已上架')->display(function ($value) {
             return $value ? '是' : '否';
         });
@@ -85,6 +90,15 @@ class ProductsController extends AdminController
         $form = new Form(new Product);
 
         $form->text('title', __('商品名称'))->rules('required');
+        // 添加一个类目字段，与之前类目管理类似，使用 Ajax 的方式来搜索添加
+        // ->options() 用于编辑商品时初始化展示该商品的类目，Laravel-Admin 会把 category_id 字段值传给匿名函数，匿名函数需要返回 [id => value] 格式的返回值。
+        $form->select('category_id', '类目')->options(function($id) {
+            $category = Category::find($id);
+            if ($category) {
+                return [$category->id => $category->full_name];
+            }
+        })->ajax('/admin/api/categories?is_directory=0');
+
         $form->image('image', __('封面图片'))->rules('required|image');
         $form->quill('description', __('商品描述'))->rules('required');
         $form->radio('on_sale', __('上架'))->options(['1' => '是', '0' => '否'])->default('0');

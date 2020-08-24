@@ -101,7 +101,7 @@ class CategoriesController extends AdminController
          * total: 2
         */        
         $result = Category::query()
-            ->where('is_directory', true) // 用于这里选择的是父类目，因此需要限定 is_directory 为 true
+            ->where('is_directory', boolval($request->input('is_directory', true)))
             ->where('name', 'like', '%'.$search.'%')
             ->paginate();
         
