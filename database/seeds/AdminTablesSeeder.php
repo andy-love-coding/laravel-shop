@@ -110,6 +110,22 @@ class AdminTablesSeeder extends Seeder
                     "icon" => "fa-bars",
                     "uri" => "/categories",
                     "permission" => NULL
+                ],
+                [
+                    "parent_id" => 9,
+                    "order" => 0,
+                    "title" => "众筹商品",
+                    "icon" => "fa-flag-checkered",
+                    "uri" => "/crowdfunding_products",
+                    "permission" => NULL
+                ],
+                [
+                    "parent_id" => 9,
+                    "order" => 0,
+                    "title" => "普通商品",
+                    "icon" => "fa-cubes",
+                    "uri" => "/products",
+                    "permission" => NULL
                 ]
             ]
         );
