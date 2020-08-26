@@ -18,6 +18,9 @@ class UserAddress extends Model
     ];
     protected $dates = ['last_used_at'];
 
+    // 使访问器 能得到 JSON 序列化
+    protected $appends = ['full_address'];
+
     // 创建了一个访问器
     public function getFullAddressAttribute()
     {
