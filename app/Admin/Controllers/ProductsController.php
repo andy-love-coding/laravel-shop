@@ -19,7 +19,9 @@ class ProductsController extends CommonProductsController
     protected function customGrid(Grid $grid)
     {
         $grid->model()->with(['category']);
-        $grid->id('ID')->sortable();
+        $grid->id('ID')->sortable()->display(function($value) {
+            return '<a href="'. route('products.show', $value) .'" target="_blank">'.$value.'</a>';
+        });
         $grid->title('商品名称');
         $grid->column('category.name', '类目');
         $grid->on_sale('已上架')->display(function($value) {

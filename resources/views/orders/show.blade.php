@@ -116,8 +116,10 @@
           </form>
         </div>
         @endif
-        <!-- 订单已经支付，且退款状态「是未退」款时，展示申请退款按钮 -->
-        @if($order->paid_at && $order->refund_status === \App\Models\Order::REFUND_STATUS_PENDING)
+        <!-- 订单不是众筹订单，已支付，且退款状态「是未退」款时，展示申请退款按钮 -->
+        @if($order->type !== \App\Models\Order::TYPE_CROWDFUNDING  && 
+            $order->paid_at && 
+            $order->refund_status === \App\Models\Order::REFUND_STATUS_PENDING)
         <div class="refund-button">
           <button class="btn btn-sm btn-danger" id="btn-apply-refund">申请退款</button>
         </div>
