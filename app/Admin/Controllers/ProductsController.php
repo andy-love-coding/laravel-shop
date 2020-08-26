@@ -3,120 +3,36 @@
 namespace App\Admin\Controllers;
 
 use App\Models\Product;
-use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
-use Encore\Admin\Show;
-use App\Models\Category;
 
-class ProductsController extends AdminController
+class ProductsController extends CommonProductsController
 {
-    /**
-     * Title for current resource.
-     *
-     * @var string
-     */
+    
+    public function getProductType()
+    {
+        return Product::TYPE_NORMAL;
+    }
+
     protected $title = '商品';
 
-    /**
-     * Make a grid builder.
-     *
-     * @return Grid
-     */
-    protected function grid()
+    protected function customGrid(Grid $grid)
     {
-        $grid = new Grid(new Product);
-        // 使用 wiht 来与加载商品类目数据，减少 SQL 查询
-        $grid->model()->where('type', Product::TYPE_NORMAL)->with(['category']);
-
+        $grid->model()->with(['category']);
         $grid->id('ID')->sortable();
         $grid->title('商品名称');
-        // Laravel-Admin 支持用符号 . 来展示关联关系的字段
         $grid->column('category.name', '类目');
-        $grid->on_sale('已上架')->display(function ($value) {
+        $grid->on_sale('已上架')->display(function($value) {
             return $value ? '是' : '否';
         });
         $grid->price('价格');
         $grid->rating('评分');
         $grid->sold_count('销量');
         $grid->review_count('评论数');
-
-        $grid->actions(function ($actions) {
-            $actions->disableView();
-            $actions->disableDelete();
-        });
-        $grid->tools(function ($tools) {
-            // 禁用批量删除按钮
-            $tools->batch(function ($batch) {
-                $batch->disableDelete();
-            });
-        });
-
-        return $grid;
     }
 
-    /**
-     * Make a show builder.
-     *
-     * @param mixed $id
-     * @return Show
-     */
-    // protected function detail($id)
-    // {
-    //     $show = new Show(Product::findOrFail($id));
-
-    //     $show->field('id', __('Id'));
-    //     $show->field('title', __('Title'));
-    //     $show->field('description', __('Description'));
-    //     $show->field('image', __('Image'));
-    //     $show->field('on_sale', __('On sale'));
-    //     $show->field('rating', __('Rating'));
-    //     $show->field('sold_count', __('Sold count'));
-    //     $show->field('review_count', __('Review count'));
-    //     $show->field('price', __('Price'));
-    //     $show->field('created_at', __('Created at'));
-    //     $show->field('updated_at', __('Updated at'));
-
-    //     return $show;
-    // }
-
-    /**
-     * Make a form builder.
-     *
-     * @return Form
-     */
-    protected function form()
+    protected function customForm(Form $form)
     {
-        $form = new Form(new Product);
-        // 在表单中添加一个名为 type，值为 Product::TYPE_NORMAL 的隐藏字段
-        $form->hidden('type')->value(Product::TYPE_NORMAL);
-
-        $form->text('title', __('商品名称'))->rules('required');
-        // 添加一个类目字段，与之前类目管理类似，使用 Ajax 的方式来搜索添加
-        // ->options() 用于编辑商品时初始化展示该商品的类目，Laravel-Admin 会把 category_id 字段值传给匿名函数，匿名函数需要返回 [id => value] 格式的返回值。
-        $form->select('category_id', '类目')->options(function($id) {
-            $category = Category::find($id);
-            if ($category) {
-                return [$category->id => $category->full_name];
-            }
-        })->ajax('/admin/api/categories?is_directory=0');
-
-        $form->image('image', __('封面图片'))->rules('required|image');
-        $form->quill('description', __('商品描述'))->rules('required');
-        $form->radio('on_sale', __('上架'))->options(['1' => '是', '0' => '否'])->default('0');
-        // 直接添加一对多的关联模型
-        $form->hasMany('skus', __('SKU 列表'), function (Form\NestedForm $form) {
-            $form->text('title', __('SKU 名称'))->rules('required');
-            $form->text('description', __('SKU 描述'))->rules('required');
-            $form->text('price', __('单价'))->rules('required|numeric|min:0.01');
-            $form->text('stock', __('剩余库存'))->rules('required|integer|min:0');
-        });
-
-        // 定义事件回调，当模型即将保存时会触发这个回调
-        $form->saving(function (Form $form) {
-            $form->model()->price = collect($form->input('skus'))->where(Form::REMOVE_FLAG_NAME, 0)->min('price') ?: 0;
-        });
-
-        return $form;
+        // 普遍商没有额外的字段，因此这里不需要写任何代码
     }
 }
