@@ -31,7 +31,7 @@ class FinishCrowdfunding extends Command
             ->get()
             ->each(function (CrowdfundingProduct $crowdfunding) {
                 // 如果众筹目标金额大于时间众筹金额
-                if ($crowdfunding->target > $crowdfunding->total_amount) {
+                if ($crowdfunding->target_amount >= $crowdfunding->total_amount) {
                     // 调用众筹失败逻辑
                     $this->crowdfundingFailed($crowdfunding);
                 } else {

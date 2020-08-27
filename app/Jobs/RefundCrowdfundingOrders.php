@@ -12,7 +12,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
 // ShouldQueue 代表此任务需要异步执行
-class RefundCrowdfundingOrdres implements ShouldQueue
+class RefundCrowdfundingOrders implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 

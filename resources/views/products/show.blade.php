@@ -28,7 +28,7 @@
                   </div>
                 </div>
                 <div class="progress-info">
-                  <span class="current-progress">当前进度：{{ $product->crowdfunding->percent }}</span>
+                  <span class="current-progress">当前进度：{{ $product->crowdfunding->percent }}%</span>
                   <span class="float-right user-count">{{ $product->crowdfunding->user_count }}名支持者</span>
                 </div>
                 <!-- 如果众筹状态是众筹中，则输出提示语 -->
@@ -82,7 +82,7 @@
                   @if ($product->crowdfunding->status === \App\Models\CrowdfundingProduct::STATUS_FUNDING)
                     <button class="btn btn-primary btn-crowdfunding">参与众筹</button>
                   @else
-                    <button class="btn btn-primary btn-disabled">
+                    <button class="btn btn-primary disabled">
                       {{ \App\Models\CrowdfundingProduct::$statusMap[$product->crowdfunding->status] }}
                     </button>
                   @endif
