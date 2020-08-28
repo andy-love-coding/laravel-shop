@@ -22,6 +22,8 @@ class InstallmentItem extends Model
 
     protected $fillable = ['sequence', 'base', 'fee', 'fine', 'due_date', 'paid_at', 'payment_method', 'payment_no', 'refund_status'];
 
+    protected $dates = ['due_date', 'paid_at'];
+
     public function installment()
     {
         return $this->belongsTo(Installment::class);
