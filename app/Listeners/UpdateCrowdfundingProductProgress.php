@@ -35,9 +35,9 @@ class UpdateCrowdfundingProductProgress implements ShouldQueue
                 \DB::raw('count(distinct(user_id)) as user_count')
             ]);
 
-            $crowdfunding->update([
-                'total_amount' => $data->total_amount,
-                'user_count'   => $data->user_count,
-            ]);
+        $crowdfunding->update([
+            'total_amount' => $data->total_amount,
+            'user_count'   => $data->user_count,
+        ]);
     }
 }
