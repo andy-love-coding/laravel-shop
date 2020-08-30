@@ -7,6 +7,7 @@ use App\Models\Installment;
 use App\Exceptions\InvalidRequestException;
 use App\Events\OrderPaid;
 use App\Models\InstallmentItem;
+use App\Models\Order;
 use Carbon\Carbon;
 
 class InstallmentsController extends Controller
@@ -111,7 +112,7 @@ class InstallmentsController extends Controller
                 // 将分期付款对应的商品订单状态改为已支付
                 $installment->order->update([
                     'paid_at' => Carbon::now(),
-                    'payment_method' => 'alipay',
+                    'payment_method' => 'installment', // 支付方式为分期付款
                     'payment_no'    => $no, // 支付订单号为 分期付款流水号
                 ]);
                 // 触发商品订单已支付的事件
@@ -128,5 +129,44 @@ class InstallmentsController extends Controller
         });
 
         return app('alipay')->success();
+    }
+
+    public function wechatRefundNotify(Request $request)
+    {
+        // 给微信的失败响应
+        $failXml = '<xml><return_code><![CDATA[FAIL]]></return_code><return_msg><![CDATA[FAIL]]></return_msg></xml>';
+        // 校验微信回调参数
+        $data = app('wechat_pay')->verify(null, true);
+        list($no, $sequence) = explode('_', $data['out_refund_no']);
+
+        $item = InstallmentItem::query()
+            ->whereHas('installment', function($query) use ($no) {
+                $query->whereHas('order', function($query) use ($no) {
+                    $query->where('refund_no', $no); // 根据订单表的退款流水号，找到对应的还款计划
+                });
+            })
+            ->where('sequence', $sequence)
+            ->first();
+        
+        // 没有找到对应的订单，原则上不可能发生，保证代码健壮性
+        if ($item) {
+            return $failXml;
+        }
+
+        // 如果退款成功
+        if ($data['refund_status'] === 'SUCCESS') {
+            // 将还款计划退款状态改为退款成功
+            $item->update([
+                'refund_status' => InstallmentItem::REFUND_STATUS_SUCCESS,
+            ]);
+            $item->installment->refreshRefundStatus();
+        } else {
+            // 否则将对应还款计划的退款状态改为退款失败
+            $item->update([
+                'refund_status' => InstallmentItem::REFUND_STATUS_FAILED,
+            ]);
+        }
+
+        return app('wechat_pay')->success();
     }
 }
