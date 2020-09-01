@@ -72,4 +72,5 @@ class Category extends Model
                     ->push($this->name) // 将当前类目的 name 字段值加到数组的末尾
                     ->implode(' - '); // 用 - 符号将数组的值组装成一个字符串
     }
+
 }
