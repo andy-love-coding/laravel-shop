@@ -31,5 +31,9 @@ class AuthServiceProvider extends ServiceProvider
             // 例如传入 \App\Models\User 会返回 User
             return '\\App\\Policies\\'.class_basename($class).'Policy';
         });
+
+        \Horizon::auth(function ($request) {
+            return true;
+        });
     }
 }
