@@ -13,7 +13,7 @@ class SeckillProduct extends Model
 
     protected $fillable = ['start_at', 'end_at'];
     protected $dates = ['start_at', 'end_at'];
-    public $tiemstamps = false;
+    public $timestamps = false;
     
     public function pruduct()
     {
