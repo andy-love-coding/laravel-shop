@@ -3,6 +3,7 @@
 return [
 
     'order_ttl' => 30*60,
+    'seckill_order_ttl' => 10*60,
     'installment_fee_rate' => [
         3  => 1.5,
         6  => 2,

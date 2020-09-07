@@ -16,6 +16,7 @@ use App\Jobs\RefundInstallmentOrder;
 
 class OrderService
 {
+    // 普通商品下单
     public function store(User $user, UserAddress $address, $remark, $items, CouponCode $coupon = null)
     {
         // 如果传入了优惠券，则先检查是否可用
@@ -115,7 +116,7 @@ class OrderService
             $order->user()->associate($user);
             // 写入数据库
             $order->save();
-            // 创建一个新的 订单项($item) 与 SKU 关联
+            // 创建一个新的 订单项($item) 与 Product、SKU 关联
             $item = $order->items()->make([
                 'amount' => $amout,
                 'price'  => $sku->price,
@@ -135,6 +136,50 @@ class OrderService
         $crowdfundingTtl = $sku->product->crowdfunding->end_at->getTimestamp() - time();
         // 剩余秒数与默认订单关闭时间去较小值作为订单关闭事件
         dispatch(new CloseOrder($order, min(config('app.order_ttl'), $crowdfundingTtl)));
+
+        return $order;
+    }
+
+    // 秒杀商品下单
+    public function seckill(User $user, UserAddress $address, ProductSku $sku)
+    {
+        $order = \DB::transaction(function () use ($user, $address, $sku) {
+            // 更新此地址的最后使用时间
+            $address->update(['last_used_at' => Carbon::now()]);
+            // 扣减对应 SKU 库存
+            if ($sku->decreaseStock(1) <= 0) {
+                throw new InvalidRequestException('该商品库存不足');
+            }
+            // 创建一个订单
+            $order = new Order([
+                'address' => [ // 将地址信息放入订单中
+                    'address'      => $address->full_address,
+                    'zip'          => $address->zip,
+                    'contact_name' => $address->contact_name,
+                    'contact_phone'=> $address->contact_phone,
+                ],
+                'remark'        => '',
+                'total_amount'  => $sku->price,
+                'type'          => Order::TYPE_SECKILL,
+            ]);
+            // 订单关联到用户
+            $order->user()->associate($user);
+            // 写入数据库
+            $order->save();
+            // 创建一个新的的订单项 OrderItem ，并与 Order、Product、SKU 关联
+            $item = $order->items()->make([
+                'amount'    => 1,
+                'price'     => $sku->price,
+            ]);
+            $item->product()->associate($sku->product_id);
+            $item->productSku()->associate($sku);
+            $item->save();
+
+            return $order;
+        });
+
+        // 秒杀订单自动关闭时间与普通订单不同
+        dispatch(new CloseOrder($order, config('app.seckill_order_ttl')));
 
         return $order;
     }

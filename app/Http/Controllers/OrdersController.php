@@ -12,11 +12,11 @@ use Carbon\Carbon;
 use App\Http\Requests\SendReviewRequest;
 use App\Events\OrderReviewed;
 use App\Http\Requests\ApplyRefundRequest;
+use App\Http\Requests\SeckillOrderRequest;
 use App\Exceptions\CouponCodeUnavailableException;
 use App\Models\CouponCode;
 use App\Http\Requests\CrowdfundingOrderRequest;
 use App\Models\ProductSku;
-use OrdersSeeder;
 
 class OrdersController extends Controller
 {
@@ -153,4 +153,15 @@ class OrdersController extends Controller
 
         return $orderService->crowdfunding($user, $address, $sku, $amount);
     }
+
+    // 秒杀下单
+    public function seckill(SeckillOrderRequest $request, OrderService $orderService)
+    {
+        $user = $request->user();
+        $address = UserAddress::find($request->input('address_id'));
+        $sku = ProductSku::find($request->input('sku_id'));
+
+        return $orderService->seckill($user, $address, $sku);
+    }
+    
 }
