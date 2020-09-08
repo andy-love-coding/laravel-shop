@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Monolog\Logger;
 use Yansongda\Pay\Pay;
 use Elasticsearch\ClientBuilder as ESClientBuilder;
+use Illuminate\Support\Str;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -56,6 +57,13 @@ class AppServiceProvider extends ServiceProvider
 
             return $buider->build();
         });
+
+        // 只有在本地开发环境启用 SQL 日志
+        if (app()->environment('local')) {
+            \DB::listen(function($query) {
+                \Log::info(Str::replaceArray('?', $query->bindings, $query->sql));
+            });
+        }
     }
 
     /**

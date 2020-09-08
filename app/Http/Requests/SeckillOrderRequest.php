@@ -12,12 +12,19 @@ class SeckillOrderRequest extends Request
     public function rules()
     {
         return [
-            'address_id' => [
-                'required',
-                // 解释：字段 address_id 的值必须在 user_addresses 表中的 id 列中存在，
-                // 并且 user_addresses 表还必须满足 user_id 的值等于当前用户的 id
-                Rule::exists('user_addresses', 'id')->where('user_id', $this->user()->id),
-            ],
+            // 'address_id' => [
+            //     'required',
+            //     // 解释：字段 address_id 的值必须在 user_addresses 表中的 id 列中存在，
+            //     // 并且 user_addresses 表还必须满足 user_id 的值等于当前用户的 id
+            //     Rule::exists('user_addresses', 'id')->where('user_id', $this->user()->id),
+            // ],
+            'address.province'      => 'required',
+            'address.city'          => 'required',
+            'address.district'      => 'required',
+            'address.address'       => 'required',
+            'address.zip'           => 'required',
+            'address.contact_name'  => 'required',
+            'address.contact_phone' => 'required',
             'sku_id' => [
                 'required',
                 function ($attribute, $value, $fail) {
